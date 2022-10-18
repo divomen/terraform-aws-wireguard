@@ -1,5 +1,5 @@
 resource "aws_eip" "wireguard" {
-  vpc = true
+  vpc  = true
   tags = {
     Name = "wireguard"
   }
@@ -55,7 +55,7 @@ resource "aws_launch_configuration" "wireguard_launch_config" {
   instance_type        = var.instance_type
   key_name             = var.ssh_key_id
   iam_instance_profile = (var.use_eip ? aws_iam_instance_profile.wireguard_profile[0].name : null)
-  user_data = templatefile("${path.module}/templates/user-data.txt", {
+  user_data            = templatefile("${path.module}/templates/user-data.txt", {
     wg_server_private_key              = var.use_ssm ? "AWS_SSM_PARAMETER" : var.wg_server_private_key,
     wg_server_private_key_aws_ssm_name = var.use_ssm ? aws_ssm_parameter.wireguard_server_private_key[0].name : "",
     wg_server_net                      = var.wg_server_net,
@@ -89,28 +89,26 @@ resource "aws_autoscaling_group" "wireguard_asg" {
     create_before_destroy = true
   }
 
-  tags = [
-    {
-      key                 = "Name"
-      value               = aws_launch_configuration.wireguard_launch_config.name
-      propagate_at_launch = true
-    },
-    {
-      key                 = "Project"
-      value               = "wireguard"
-      propagate_at_launch = true
-    },
-    {
-      key                 = "env"
-      value               = var.env
-      propagate_at_launch = true
-    },
-    {
-      key                 = "tf-managed"
-      value               = "True"
-      propagate_at_launch = true
-    },
-  ]
+  tag {
+    key                 = "Name"
+    value               = aws_launch_configuration.wireguard_launch_config.name
+    propagate_at_launch = true
+  }
+  tag {
+    key                 = "Project"
+    value               = "wireguard"
+    propagate_at_launch = true
+  }
+  tag {
+    key                 = "env"
+    value               = var.env
+    propagate_at_launch = true
+  }
+  tag {
+    key                 = "tf-managed"
+    value               = "True"
+    propagate_at_launch = true
+  }
 }
 
 resource "aws_ssm_parameter" "wireguard_server_private_key" {
