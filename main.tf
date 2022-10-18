@@ -40,7 +40,7 @@ data "aws_ami" "ubuntu" {
   most_recent = true
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-${var.instance_arch}-server-*"]
   }
   filter {
     name   = "virtualization-type"
@@ -65,9 +65,12 @@ resource "aws_launch_configuration" "wireguard_launch_config" {
     eip_id                             = aws_eip.wireguard.id,
     use_ssm                            = var.use_ssm ? "true" : "false",
     wg_server_interface                = var.wg_server_interface
+    arch                               = var.instance_arch
+    aws_client_arch                    = var.instance_arch == "amd64" ? "x86_64" : (
+    var.instance_arch == "arm64" ? "aarch64" : var.instance_arch)
   })
   security_groups             = [aws_security_group.sg_wireguard.id]
-  associate_public_ip_address = var.use_eip
+  associate_public_ip_address = !var.use_eip
 
   lifecycle {
     create_before_destroy = true

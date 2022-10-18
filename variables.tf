@@ -11,6 +11,11 @@ variable "instance_type" {
   description = "The machine type to launch, some machines may offer higher throughput for higher use cases."
 }
 
+variable "instance_arch" {
+  default     = "amd64"
+  description = "The machine architecture to launch amd64 or arm64"
+}
+
 variable "asg_min_size" {
   default     = 1
   description = "We may want more than one machine in a scaling group, but 1 is recommended."
